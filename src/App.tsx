@@ -1,0 +1,870 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, useSpring, animate } from 'motion/react';
+import { 
+  Star, 
+  ArrowRight, 
+  Lightbulb, 
+  Users, 
+  Rocket, 
+  Code2, 
+  BarChart3, 
+  Award, 
+  Smartphone, 
+  ShieldCheck, 
+  Zap, 
+  Twitter, 
+  Instagram, 
+  Linkedin, 
+  Github,
+  Moon,
+  Sun,
+  X,
+  Menu
+} from 'lucide-react';
+
+const ARGE_UNITS = [
+  {
+    id: 1,
+    icon: <Lightbulb className="w-6 h-6" />,
+    title: "İnovasyon",
+    shortDesc: "Yeni fikirler üretir, teknolojik çözümler geliştiririz.",
+    detailTitle: "İnovasyon Laboratuvarı",
+    detailDesc: [
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.",
+      "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis."
+    ],
+    stats: [{ label: "Proje", value: "12+" }, { label: "Patent", value: "3" }],
+    gradient: "from-purple-600 to-violet-800",
+    accentColor: "#a855f7"
+  },
+  {
+    id: 2,
+    icon: <Users className="w-6 h-6" />,
+    title: "İşbirliği",
+    shortDesc: "Disiplinler arası ekiplerle ortak projeler yürütürüz.",
+    detailTitle: "Ekip & İşbirliği",
+    detailDesc: [
+      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nemo enim ipsam voluptatem quia voluptas sit aspernatur."
+    ],
+    stats: [{ label: "Üye", value: "50+" }, { label: "Ekip", value: "8" }],
+    gradient: "from-fuchsia-600 to-purple-800",
+    accentColor: "#c026d3"
+  },
+  {
+    id: 3,
+    icon: <Rocket className="w-6 h-6" />,
+    title: "Gelişim",
+    shortDesc: "Sürekli öğrenme ve kişisel gelişimi destekleriz.",
+    detailTitle: "Kişisel & Teknik Gelişim",
+    detailDesc: [
+      "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
+      "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+    ],
+    stats: [{ label: "Workshop", value: "20+" }, { label: "Sertifika", value: "15+" }],
+    gradient: "from-violet-600 to-indigo-800",
+    accentColor: "#7c3aed"
+  },
+  {
+    id: 4,
+    icon: <Code2 className="w-6 h-6" />,
+    title: "Yazılım",
+    shortDesc: "Modern teknolojilerle gerçek dünya problemlerini çözeriz.",
+    detailTitle: "Yazılım & Teknoloji",
+    detailDesc: [
+      "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed do eiusmod tempor incididunt ut labore et dolore."
+    ],
+    stats: [{ label: "Uygulama", value: "5+" }, { label: "Teknoloji", value: "10+" }],
+    gradient: "from-purple-700 to-fuchsia-900",
+    accentColor: "#9333ea"
+  },
+  {
+    id: 5,
+    icon: <BarChart3 className="w-6 h-6" />,
+    title: "Araştırma",
+    shortDesc: "Akademik ve endüstriyel araştırmalar yürütürüz.",
+    detailTitle: "Araştırma & Analiz",
+    detailDesc: [
+      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Nemo enim ipsam voluptatem quia voluptas.",
+      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed do eiusmod tempor incididunt ut labore et dolore."
+    ],
+    stats: [{ label: "Makale", value: "7+" }, { label: "Konferans", value: "4" }],
+    gradient: "from-indigo-600 to-purple-800",
+    accentColor: "#6366f1"
+  },
+  {
+    id: 6,
+    icon: <Award className="w-6 h-6" />,
+    title: "Başarılar",
+    shortDesc: "Ulusal ve uluslararası yarışmalarda ödüller kazanırız.",
+    detailTitle: "Ödüller & Başarılar",
+    detailDesc: [
+      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.",
+      "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt."
+    ],
+    stats: [{ label: "Ödül", value: "10+" }, { label: "Yarışma", value: "6+" }],
+    gradient: "from-pink-600 to-purple-800",
+    accentColor: "#db2777"
+  }
+];
+
+const PROJECTS = [
+  {
+    title: "Proje Alpha",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.",
+    image: "https://picsum.photos/seed/project1/600/400",
+    tags: ["React", "TypeScript", "Node.js"]
+  },
+  {
+    title: "Proje Beta",
+    description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    image: "https://picsum.photos/seed/project2/600/400",
+    tags: ["Python", "AI", "Machine Learning"]
+  },
+  {
+    title: "Proje Gamma",
+    description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.",
+    image: "https://picsum.photos/seed/project3/600/400",
+    tags: ["React Native", "Mobile", "Firebase"]
+  },
+  {
+    title: "Proje Delta",
+    description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt.",
+    image: "https://picsum.photos/seed/project4/600/400",
+    tags: ["Vue.js", "Dashboard", "Analytics"]
+  },
+  {
+    title: "Proje Epsilon",
+    description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.",
+    image: "https://picsum.photos/seed/project5/600/400",
+    tags: ["Blockchain", "Web3", "Solidity"]
+  },
+  {
+    title: "Proje Zeta",
+    description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.",
+    image: "https://picsum.photos/seed/project6/600/400",
+    tags: ["Cloud", "AWS", "DevOps"]
+  }
+];
+
+interface ArgeCardProps {
+  unit: typeof ARGE_UNITS[0];
+  index: number;
+  isDark: boolean;
+  onSelect: () => void;
+  x: any; // MotionValue
+  containerWidth: number;
+}
+
+const ArgeCard: React.FC<ArgeCardProps> = ({ unit, index, isDark, onSelect, x, containerWidth }) => {
+  const isMobile = containerWidth < 768;
+  const cardWidth = isMobile ? Math.min(320, containerWidth * 0.85) : 400;
+  const gap = isMobile ? 24 : 48;
+  const padding = containerWidth / 2 - cardWidth / 2;
+  
+  // The position of this card's center relative to the start of the motion.div
+  const cardCenter = padding + index * (cardWidth + gap) + cardWidth / 2;
+  
+  const distanceFromCenter = useTransform(x, (latestX: number) => {
+    return cardCenter + latestX - containerWidth / 2;
+  });
+
+  // Transform values based on distance from center
+  const rotateY = useTransform(distanceFromCenter, [-500, 0, 500], [45, 0, -45]);
+  const scale = useTransform(distanceFromCenter, [-500, 0, 500], [0.8, 1, 0.8]);
+  const z = useTransform(distanceFromCenter, [-500, 0, 500], [-200, 0, -200]);
+  const opacity = useTransform(distanceFromCenter, [-500, -200, 0, 200, 500], [0.3, 0.8, 1, 0.8, 0.3]);
+
+  return (
+    <motion.div
+      style={{
+        rotateY,
+        scale,
+        z,
+        opacity,
+        perspective: 1000,
+        transformStyle: "preserve-3d",
+        willChange: "transform",
+        width: cardWidth
+      }}
+      className="flex-shrink-0 h-[250px] relative z-10 select-none"
+    >
+      <motion.div 
+        className={`relative h-full w-full rounded-3xl ${isMobile ? 'p-6' : 'p-8'} flex flex-col justify-between overflow-hidden
+          ${isDark ? 'border border-white/10 shadow-2xl shadow-purple-900/20' : 'border border-purple-200 shadow-xl shadow-purple-100'}
+          backdrop-blur-xl transition-colors duration-300`}
+        style={{
+          background: isDark 
+            ? 'linear-gradient(135deg, rgba(30,30,40,0.9) 0%, rgba(15,15,20,0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(245,245,250,0.9) 100%)',
+          transformStyle: "preserve-3d"
+        }}
+      >
+        <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${unit.gradient}`}></div>
+        
+        <div className="flex justify-between items-start" style={{ transform: "translateZ(20px)" }}>
+          <div className="space-y-1">
+            <h3 className={`text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{unit.title}</h3>
+            <p className={`text-sm font-medium ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>{unit.shortDesc}</p>
+          </div>
+          <div className={`w-10 h-10 flex items-center justify-center rounded-full ${isDark ? 'bg-white/5' : 'bg-purple-50'}`}>
+            <span className={`${isDark ? 'text-purple-300' : 'text-purple-600'}`}>
+              {unit.icon}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-end" style={{ transform: "translateZ(30px)" }}>
+          <div className="flex gap-3">
+            {unit.stats.map((stat, i) => (
+              <div key={i} className="flex flex-col">
+                <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{stat.label}</span>
+                <span className={`text-lg font-black ${isDark ? 'text-white' : 'text-purple-700'}`}>{stat.value}</span>
+              </div>
+            ))}
+          </div>
+          <div 
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect();
+            }}
+            className={`flex items-center space-x-2 text-xs font-bold uppercase tracking-widest cursor-pointer hover:opacity-80 transition-opacity ${isDark ? 'text-purple-400' : 'text-purple-600'}`}
+          >
+            <span>Detaylar</span>
+            <ArrowRight className="w-4 h-4" />
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+export default function App() {
+  const [isDark, setIsDark] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
+  const [selectedUnit, setSelectedUnit] = useState<typeof ARGE_UNITS[0] | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  const x = useMotionValue(0);
+  const springX = useSpring(x, { stiffness: 300, damping: 30 });
+
+  useEffect(() => {
+    if (containerRef.current) {
+      setContainerWidth(containerRef.current.offsetWidth);
+      const handleResize = () => {
+        if (containerRef.current) setContainerWidth(containerRef.current.offsetWidth);
+      };
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+
+  const isMobile = containerWidth < 768;
+  const cardWidth = isMobile ? Math.min(320, containerWidth * 0.85) : 400;
+  const gap = isMobile ? 24 : 48;
+  const itemWidth = cardWidth + gap;
+  const padding = containerWidth / 2 - cardWidth / 2;
+  const maxDrag = (ARGE_UNITS.length - 1) * itemWidth;
+  const dragConstraints = { left: -maxDrag, right: 0 };
+
+  const handleDragEnd = (_: any, info: any) => {
+    const currentX = x.get();
+    
+    // Calculate where it would land with momentum
+    const velocity = info.velocity.x;
+    const projectedX = currentX + velocity * 0.1; 
+    
+    let nearestIndex = Math.round(Math.abs(projectedX) / itemWidth);
+    nearestIndex = Math.max(0, Math.min(nearestIndex, ARGE_UNITS.length - 1));
+    
+    const snapX = -nearestIndex * itemWidth;
+    
+    animate(x, snapX, {
+      type: "spring",
+      stiffness: 300,
+      damping: 30,
+      velocity: velocity
+    });
+  };
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDark]);
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsMobileMenuOpen(false);
+  };
+
+  return (
+    <div className={`min-h-screen overflow-x-hidden transition-colors duration-300 ${isDark ? 'bg-gray-950 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      {/* Navigation */}
+      <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${scrolled || isMobileMenuOpen ? (isDark ? 'bg-gray-900/90 backdrop-blur-lg shadow-lg' : 'bg-white/90 backdrop-blur-lg shadow-lg') : 'bg-transparent'} py-4 px-6`}>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <button className="flex items-center space-x-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
+            <img 
+              src="https://static.readdy.ai/image/a49a708ff15a112259bae29f78dc133b/eb54a76d95f58d32b413a617da2ab1c4.png" 
+              alt="ACM Hacettepe ARGE" 
+              className="h-10 w-10"
+              referrerPolicy="no-referrer"
+            />
+            <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>ACM ARGE</span>
+          </button>
+          
+          <div className="hidden md:flex items-center space-x-8">
+            {['acm-nedir', 'acm-hacettepe', 'arge-birimi', 'gecmis-calismalar', 'geyik-app', 'acs-days'].map((id) => (
+              <button 
+                key={id}
+                onClick={() => scrollToSection(id)}
+                className={`text-sm font-medium transition-colors hover:text-purple-400 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+              >
+                {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => setIsDark(!isDark)}
+              className={`relative w-12 h-6 md:w-16 md:h-8 rounded-full transition-colors duration-300 ${isDark ? 'bg-purple-900/50' : 'bg-purple-200'}`}
+            >
+              <motion.div 
+                animate={{ x: isDark ? (isMobile ? 24 : 32) : 0 }}
+                className={`absolute top-0.5 left-0.5 md:top-1 md:left-1 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center ${isDark ? 'bg-purple-600' : 'bg-yellow-400'}`}
+              >
+                {isDark ? <Moon className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" /> : <Sun className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" />}
+              </motion.div>
+            </button>
+
+            <button 
+              className="md:hidden text-purple-500"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden mt-4 pb-4 border-t border-purple-500/20"
+            >
+              <div className="flex flex-col space-y-4 pt-4">
+                {['acm-nedir', 'acm-hacettepe', 'arge-birimi', 'gecmis-calismalar', 'geyik-app', 'acs-days'].map((id) => (
+                  <button 
+                    key={id}
+                    onClick={() => scrollToSection(id)}
+                    className={`text-left text-sm font-medium transition-colors hover:text-purple-400 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+                  >
+                    {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+
+      {/* Hero Section */}
+      <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://picsum.photos/seed/tech/1920/1080" 
+            alt="Hero Background" 
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/60 via-gray-900/70 to-gray-900/80"></div>
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 max-w-6xl mx-auto px-6 text-center"
+        >
+          <div className={`inline-block px-6 py-2 rounded-full mb-8 ${isDark ? 'bg-purple-500/20 border border-purple-400/30' : 'bg-purple-100/80 border border-purple-300'} backdrop-blur-md`}>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1">
+                {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />)}
+              </div>
+              <span className={`text-sm font-medium ${isDark ? 'text-purple-200' : 'text-purple-900'}`}>Yenilikçi Projeler</span>
+              <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>• ACM Hacettepe ARGE</span>
+            </div>
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            <span className="text-white">Teknoloji ile Geleceği</span>
+            <br />
+            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Birlikte İnşa Ediyoruz</span>
+          </h1>
+
+          <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-3xl mx-auto">
+            Araştırma, geliştirme ve inovasyon odaklı projelerle <br /> yazılım dünyasında fark yaratıyoruz
+          </p>
+
+          <button className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg shadow-purple-500/50 hover:shadow-purple-500/70">
+            <span className="flex items-center space-x-2">
+              <span>Projelerimizi Keşfet</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </span>
+          </button>
+        </motion.div>
+      </section>
+
+      {/* ACM Nedir Section */}
+      <section id="acm-nedir" className={`py-24 px-6 overflow-hidden ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
+                Hakkımızda
+              </div>
+              <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>ACM Nedir?</h2>
+              <div className={`space-y-4 text-base leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+              </div>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className={`relative rounded-2xl overflow-hidden ${isDark ? 'bg-purple-900/20 border border-purple-500/20' : 'bg-white border border-purple-200 shadow-xl'} backdrop-blur-md`}>
+                <div className="aspect-square">
+                  <img 
+                    src="https://picsum.photos/seed/acm/600/600" 
+                    alt="ACM" 
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 to-transparent"></div>
+              </div>
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full blur-3xl opacity-50"></div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ACM Hacettepe Section */}
+      <section id="acm-hacettepe" className={`py-24 px-6 overflow-hidden ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <motion.div 
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="order-2 md:order-1 relative"
+            >
+              <div className={`relative rounded-2xl overflow-hidden ${isDark ? 'bg-purple-900/20 border border-purple-500/20' : 'bg-gray-50 border border-purple-200 shadow-xl'} backdrop-blur-md`}>
+                <div className="aspect-square">
+                  <img 
+                    src="https://picsum.photos/seed/hacettepe/600/600" 
+                    alt="ACM Hacettepe" 
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 to-transparent"></div>
+              </div>
+              <div className="absolute -top-6 -left-6 w-32 h-32 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full blur-3xl opacity-50"></div>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="order-1 md:order-2"
+            >
+              <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
+                Topluluğumuz
+              </div>
+              <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>ACM Hacettepe Nedir?</h2>
+              <div className={`space-y-4 text-base leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ARGE Birimi Section */}
+      <section id="arge-birimi" className={`py-24 overflow-hidden ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-20">
+            <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
+              Birimlerimiz
+            </div>
+            <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>ARGE Birimi Nedir?</h2>
+            <p className={`text-base max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              Araştırma, geliştirme ve inovasyon odaklı çalışmalarımızı keşfetmek için kartlara tıklayın.
+            </p>
+          </div>
+        </div>
+
+        <div className="relative mt-12 py-12 overflow-hidden">
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full blur-[120px] pointer-events-none ${isDark ? 'bg-purple-600/15' : 'bg-purple-300/20'}`}></div>
+          
+          <div 
+            ref={containerRef}
+            className="relative z-10 w-full overflow-visible"
+            style={{ perspective: '1200px' }}
+          >
+            <motion.div 
+              drag="x"
+              dragConstraints={dragConstraints}
+              onDragEnd={handleDragEnd}
+              style={{ 
+                x, 
+                transformStyle: 'preserve-3d',
+                paddingLeft: padding,
+                paddingRight: padding
+              }}
+              className={`flex ${isMobile ? 'gap-6' : 'gap-12'} cursor-grab active:cursor-grabbing`}
+            >
+              {ARGE_UNITS.map((unit, index) => (
+                <ArgeCard 
+                  key={unit.id}
+                  unit={unit}
+                  index={index}
+                  isDark={isDark}
+                  onSelect={() => setSelectedUnit(unit)}
+                  x={x}
+                  containerWidth={containerWidth}
+                />
+              ))}
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Modal */}
+        <AnimatePresence>
+          {selectedUnit && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSelectedUnit(null)}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className={`relative max-w-lg w-full rounded-3xl p-6 md:p-8 shadow-2xl ${isDark ? 'bg-gray-900/80 border border-purple-500/30' : 'bg-white/80 border border-purple-200 shadow-purple-200/50'} backdrop-blur-2xl`}
+              >
+                <button 
+                  onClick={() => setSelectedUnit(null)}
+                  className={`absolute top-5 right-5 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 ${isDark ? 'bg-white/10 hover:bg-white/20 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <div className="flex items-center space-x-4 mb-6">
+                  <div className={`w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br ${selectedUnit.gradient} text-white`}>
+                    {selectedUnit.icon}
+                  </div>
+                  <div>
+                    <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{selectedUnit.detailTitle}</h3>
+                    <div className="flex items-center space-x-2 mt-1">
+                      {selectedUnit.stats.map((stat, i) => (
+                        <span key={i} className={`text-xs px-2 py-0.5 rounded-full font-semibold ${isDark ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-100 text-purple-700'}`}>
+                          {stat.value} {stat.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`h-px mb-6 ${isDark ? 'bg-white/10' : 'bg-purple-100'}`} />
+
+                <div className="space-y-4">
+                  {selectedUnit.detailDesc.map((p, i) => (
+                    <p key={i} className={`text-sm leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{p}</p>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => setSelectedUnit(null)}
+                  className={`mt-8 w-full py-3 rounded-xl bg-gradient-to-r ${selectedUnit.gradient} hover:opacity-90 text-white font-semibold text-sm transition-all duration-300 shadow-lg shadow-purple-500/30`}
+                >
+                  Kapat
+                </button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+      </section>
+
+      {/* Portfolio Section */}
+      <section id="gecmis-calismalar" className={`py-24 px-6 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
+              Portföy
+            </div>
+            <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Geçmiş Çalışmalarımız</h2>
+            <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {PROJECTS.map((project, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className={`group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-2 ${isDark ? 'bg-purple-900/20 border border-purple-500/20 hover:border-purple-500/40' : 'bg-white border border-purple-200 shadow-lg hover:shadow-xl'} backdrop-blur-md`}
+              >
+                <div className="relative w-full h-56 overflow-hidden">
+                  <img 
+                    src={project.image} 
+                    alt={project.title} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 to-transparent"></div>
+                </div>
+                <div className="p-6">
+                  <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>{project.title}</h3>
+                  <p className={`text-sm mb-4 leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{project.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {project.tags.map((tag, i) => (
+                      <span key={i} className={`px-3 py-1 rounded-full text-xs font-medium ${isDark ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-100 text-purple-700'}`}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Geyik App Section */}
+      <section id="geyik-app" className={`py-24 px-6 overflow-hidden ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
+                Uygulamalarımız
+              </div>
+              <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Geyik Uygulamamız</h2>
+              <div className={`space-y-4 text-base leading-relaxed mb-8 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { icon: <Smartphone />, title: "Mobil Uyumlu", desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit." },
+                  { icon: <ShieldCheck />, title: "Güvenli", desc: "Sed do eiusmod tempor incididunt ut labore et dolore." },
+                  { icon: <Zap />, title: "Hızlı", desc: "Ut enim ad minim veniam, quis nostrud exercitation." }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start space-x-4">
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-purple-600/30' : 'bg-purple-100'}`}>
+                      <span className="text-purple-400">{item.icon}</span>
+                    </div>
+                    <div>
+                      <h4 className={`font-bold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.title}</h4>
+                      <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className={`relative rounded-2xl overflow-hidden ${isDark ? 'bg-purple-900/20 border border-purple-500/20' : 'bg-white border border-purple-200 shadow-xl'} backdrop-blur-md`}>
+                <div className="aspect-square">
+                  <img 
+                    src="https://picsum.photos/seed/app/600/600" 
+                    alt="Geyik App" 
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 to-transparent"></div>
+              </div>
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full blur-3xl opacity-50"></div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ACS DAYS Section */}
+      <section id="acs-days" className={`py-24 px-6 overflow-hidden ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <motion.div 
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="order-2 md:order-1 relative"
+            >
+              <div className={`relative rounded-2xl overflow-hidden ${isDark ? 'bg-purple-900/20 border border-purple-500/20' : 'bg-gray-50 border border-purple-200 shadow-xl'} backdrop-blur-md`}>
+                <div className="aspect-square">
+                  <img 
+                    src="https://picsum.photos/seed/event/600/600" 
+                    alt="ACS DAYS App" 
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 to-transparent"></div>
+              </div>
+              <div className="absolute -top-6 -left-6 w-32 h-32 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full blur-3xl opacity-50"></div>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="order-1 md:order-2"
+            >
+              <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
+                Etkinliklerimiz
+              </div>
+              <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>ACS DAYS Uygulamamız</h2>
+              <div className={`space-y-4 text-base leading-relaxed mb-8 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { value: "500+", label: "Katılımcı" },
+                  { value: "50+", label: "Konuşmacı" },
+                  { value: "3", label: "Gün" },
+                  { value: "20+", label: "Workshop" }
+                ].map((stat, i) => (
+                  <div key={i} className={`p-4 md:p-6 rounded-xl text-center ${isDark ? 'bg-purple-900/20 border border-purple-500/20' : 'bg-purple-50 border border-purple-200'} backdrop-blur-md`}>
+                    <div className={`text-2xl md:text-3xl font-bold mb-2 ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>{stat.value}</div>
+                    <div className={`text-xs md:text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className={`py-16 px-6 ${isDark ? 'bg-purple-950/50' : 'bg-purple-50'}`}>
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                <img 
+                  src="https://static.readdy.ai/image/a49a708ff15a112259bae29f78dc133b/eb54a76d95f58d32b413a617da2ab1c4.png" 
+                  alt="ACM Hacettepe ARGE" 
+                  className="h-10 w-10"
+                  referrerPolicy="no-referrer"
+                />
+                <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>ACM ARGE</span>
+              </div>
+              <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                Hacettepe Üniversitesi ACM öğrenci topluluğunun ARGE birimi.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className={`font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Hızlı Bağlantılar</h4>
+              <ul className="space-y-2">
+                {['acm-nedir', 'acm-hacettepe', 'arge-birimi'].map((id) => (
+                  <li key={id}>
+                    <button 
+                      onClick={() => scrollToSection(id)}
+                      className={`text-sm transition-colors hover:text-purple-400 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+                    >
+                      {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className={`font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Projeler</h4>
+              <ul className="space-y-2">
+                {['gecmis-calismalar', 'geyik-app', 'acs-days'].map((id) => (
+                  <li key={id}>
+                    <button 
+                      onClick={() => scrollToSection(id)}
+                      className={`text-sm transition-colors hover:text-purple-400 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+                    >
+                      {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className={`font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Sosyal Medya</h4>
+              <div className="flex space-x-4">
+                {[Twitter, Instagram, Linkedin, Github].map((Icon, i) => (
+                  <a key={i} href="#" className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isDark ? 'bg-purple-900/30 text-purple-400 hover:bg-purple-900/50' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'}`}>
+                    <Icon className="w-5 h-5" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          <div className={`pt-8 border-t ${isDark ? 'border-purple-900/30' : 'border-purple-200'}`}>
+            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>© 2024 ACM Hacettepe ARGE. Tüm hakları saklıdır.</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
