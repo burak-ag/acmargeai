@@ -19,7 +19,9 @@ import {
   Moon,
   Sun,
   X,
-  Menu
+  Menu,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 const ARGE_UNITS = [
@@ -112,6 +114,36 @@ const ARGE_UNITS = [
     stats: [{ label: "Ödül", value: "10+" }, { label: "Yarışma", value: "6+" }],
     gradient: "from-pink-600 to-purple-800",
     accentColor: "#db2777"
+  },
+  {
+    id: 7,
+    icon: <ShieldCheck className="w-6 h-6" />,
+    title: "Siber Güvenlik",
+    shortDesc: "Dijital varlıkları korumak için gelişmiş çözümler üretiriz.",
+    detailTitle: "Siber Güvenlik Laboratuvarı",
+    detailDesc: [
+      "Ağ güvenliği, sızma testleri ve veri şifreleme konularında derinlemesine araştırmalar yapıyoruz. Modern tehditlere karşı proaktif savunma mekanizmaları geliştiriyoruz.",
+      "Kritik altyapıların korunması ve siber olaylara müdahale stratejileri üzerine çalışarak dijital dünyayı daha güvenli hale getirmeyi hedefliyoruz.",
+      "Etik hacking ve güvenlik protokolleri üzerine düzenlediğimiz workshoplarla topluluğumuzun farkındalığını artırıyoruz."
+    ],
+    stats: [{ label: "Analiz", value: "15+" }, { label: "Sertifika", value: "8" }],
+    gradient: "from-red-600 to-rose-800",
+    accentColor: "#e11d48"
+  },
+  {
+    id: 8,
+    icon: <BarChart3 className="w-6 h-6" />,
+    title: "Veri Bilimi",
+    shortDesc: "Veriden anlamlı bilgiler çıkararak geleceği öngörürüz.",
+    detailTitle: "Veri Analitiği & Bilimi",
+    detailDesc: [
+      "Büyük veri setlerini işleyerek karmaşık problemleri çözmek için makine öğrenmesi ve yapay zeka algoritmaları kullanıyoruz.",
+      "Tahminleme modelleri ve veri görselleştirme teknikleri ile karar alma süreçlerini optimize eden araçlar geliştiriyoruz.",
+      "İstatistiksel analiz ve veri madenciliği projelerimizle endüstriyel verilere yeni bir bakış açısı getiriyoruz."
+    ],
+    stats: [{ label: "Dataset", value: "25+" }, { label: "Model", value: "12" }],
+    gradient: "from-emerald-600 to-teal-800",
+    accentColor: "#059669"
   }
 ];
 
@@ -159,45 +191,68 @@ interface ArgeCardProps {
   index: number;
   isDark: boolean;
   onSelect: () => void;
+  onClick: () => void;
   x: any; // MotionValue
   containerWidth: number;
 }
 
-const ArgeCard: React.FC<ArgeCardProps> = ({ unit, index, isDark, onSelect, x, containerWidth }) => {
+const ArgeCard: React.FC<ArgeCardProps> = ({ unit, index, isDark, onSelect, onClick, x: rotation, containerWidth }) => {
   const isMobile = containerWidth < 768;
-  const cardWidth = isMobile ? Math.min(320, containerWidth * 0.85) : 400;
-  const gap = isMobile ? 24 : 48;
-  const padding = containerWidth / 2 - cardWidth / 2;
+  const isSmallMobile = containerWidth < 480;
   
-  // The position of this card's center relative to the start of the motion.div
-  const cardCenter = padding + index * (cardWidth + gap) + cardWidth / 2;
+  // Dynamic dimensions based on container width
+  const cardWidth = isMobile 
+    ? Math.min(containerWidth * 0.8, 280) 
+    : 300;
+    
+  const radius = isMobile 
+    ? Math.min(containerWidth * 0.85, 360) 
+    : 420;
   
-  const distanceFromCenter = useTransform(x, (latestX: number) => {
-    return cardCenter + latestX - containerWidth / 2;
+  const totalCards = ARGE_UNITS.length;
+  const angleStep = 360 / totalCards;
+  
+  const theta = index * angleStep;
+  
+  // Transform values based on rotation
+  const rotateY = useTransform(rotation, (r: number) => theta + r);
+  
+  // Calculate X and Z based on rotation to form a circle
+  const x = useTransform(rotation, (r: number) => {
+    const angle = (theta + r) * (Math.PI / 180);
+    return Math.sin(angle) * radius;
+  });
+  
+  const z = useTransform(rotation, (r: number) => {
+    const angle = (theta + r) * (Math.PI / 180);
+    return Math.cos(angle) * radius;
   });
 
-  // Transform values based on distance from center
-  const rotateY = useTransform(distanceFromCenter, [-500, 0, 500], [45, 0, -45]);
-  const scale = useTransform(distanceFromCenter, [-500, 0, 500], [0.8, 1, 0.8]);
-  const z = useTransform(distanceFromCenter, [-500, 0, 500], [-200, 0, -200]);
-  const opacity = useTransform(distanceFromCenter, [-500, -200, 0, 200, 500], [0.3, 0.8, 1, 0.8, 0.3]);
+  // Opacity and scale based on Z position (front cards are opaque and large)
+  const opacity = useTransform(z, [-radius, radius * 0.3, radius], [0, 0.15, 1]);
+  const scale = useTransform(z, [-radius, radius], [isMobile ? 0.75 : 0.7, 1]);
 
   return (
     <motion.div
+      onClick={onClick}
       style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        x: useTransform(x, (val) => val - cardWidth / 2),
+        y: '-50%',
+        z,
         rotateY,
         scale,
-        z,
         opacity,
-        perspective: 1000,
         transformStyle: "preserve-3d",
         willChange: "transform",
         width: cardWidth
       }}
-      className="flex-shrink-0 h-[250px] relative z-10 select-none"
+      className="flex-shrink-0 h-[240px] md:h-[250px] z-10 select-none cursor-pointer"
     >
       <motion.div 
-        className={`relative h-full w-full rounded-3xl ${isMobile ? 'p-6' : 'p-8'} flex flex-col justify-between overflow-hidden
+        className={`relative h-full w-full rounded-3xl ${isSmallMobile ? 'p-5' : 'p-8'} flex flex-col justify-between overflow-hidden
           ${isDark ? 'border border-white/10 shadow-2xl shadow-purple-900/20' : 'border border-purple-200 shadow-xl shadow-purple-100'}
           backdrop-blur-xl transition-colors duration-300`}
         style={{
@@ -211,11 +266,11 @@ const ArgeCard: React.FC<ArgeCardProps> = ({ unit, index, isDark, onSelect, x, c
         
         <div className="flex justify-between items-start" style={{ transform: "translateZ(20px)" }}>
           <div className="space-y-1">
-            <h3 className={`text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{unit.title}</h3>
-            <p className={`text-sm font-medium ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>{unit.shortDesc}</p>
+            <h3 className={`${isSmallMobile ? 'text-lg' : 'text-xl'} font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{unit.title}</h3>
+            <p className={`text-[10px] md:text-xs font-medium ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>{unit.shortDesc}</p>
           </div>
-          <div className={`w-10 h-10 flex items-center justify-center rounded-full ${isDark ? 'bg-white/5' : 'bg-purple-50'}`}>
-            <span className={`${isDark ? 'text-purple-300' : 'text-purple-600'}`}>
+          <div className={`w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full ${isDark ? 'bg-white/5' : 'bg-purple-50'}`}>
+            <span className={`${isDark ? 'text-purple-300' : 'text-purple-600'} scale-75 md:scale-100`}>
               {unit.icon}
             </span>
           </div>
@@ -225,8 +280,8 @@ const ArgeCard: React.FC<ArgeCardProps> = ({ unit, index, isDark, onSelect, x, c
           <div className="flex gap-3">
             {unit.stats.map((stat, i) => (
               <div key={i} className="flex flex-col">
-                <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{stat.label}</span>
-                <span className={`text-lg font-black ${isDark ? 'text-white' : 'text-purple-700'}`}>{stat.value}</span>
+                <span className={`text-[9px] md:text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{stat.label}</span>
+                <span className={`text-sm md:text-base font-black ${isDark ? 'text-white' : 'text-purple-700'}`}>{stat.value}</span>
               </div>
             ))}
           </div>
@@ -235,10 +290,10 @@ const ArgeCard: React.FC<ArgeCardProps> = ({ unit, index, isDark, onSelect, x, c
               e.stopPropagation();
               onSelect();
             }}
-            className={`flex items-center space-x-2 text-xs font-bold uppercase tracking-widest cursor-pointer hover:opacity-80 transition-opacity ${isDark ? 'text-purple-400' : 'text-purple-600'}`}
+            className={`flex items-center space-x-1 md:space-x-2 text-[10px] md:text-xs font-bold uppercase tracking-widest cursor-pointer hover:opacity-80 transition-opacity ${isDark ? 'text-purple-400' : 'text-purple-600'}`}
           >
             <span>Detaylar</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
           </div>
         </div>
       </motion.div>
@@ -254,8 +309,9 @@ export default function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  const x = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 300, damping: 30 });
+  const rotation = useMotionValue(0);
+  const totalCards = ARGE_UNITS.length;
+  const angleStep = 360 / totalCards;
 
   useEffect(() => {
     if (containerRef.current) {
@@ -269,31 +325,40 @@ export default function App() {
   }, []);
 
   const isMobile = containerWidth < 768;
-  const cardWidth = isMobile ? Math.min(320, containerWidth * 0.85) : 400;
-  const gap = isMobile ? 24 : 48;
-  const itemWidth = cardWidth + gap;
-  const padding = containerWidth / 2 - cardWidth / 2;
-  const maxDrag = (ARGE_UNITS.length - 1) * itemWidth;
-  const dragConstraints = { left: -maxDrag, right: 0 };
 
-  const handleDragEnd = (_: any, info: any) => {
-    const currentX = x.get();
+  const scrollToIndex = (index: number, velocity = 0) => {
+    // Calculate the shortest rotation to the target index
+    const currentRotation = rotation.get();
+    const targetRotation = -index * angleStep;
     
-    // Calculate where it would land with momentum
-    const velocity = info.velocity.x;
-    const projectedX = currentX + velocity * 0.1; 
+    // Normalize rotation to find the closest path
+    let diff = (targetRotation - currentRotation) % 360;
+    if (diff > 180) diff -= 360;
+    if (diff < -180) diff += 360;
     
-    let nearestIndex = Math.round(Math.abs(projectedX) / itemWidth);
-    nearestIndex = Math.max(0, Math.min(nearestIndex, ARGE_UNITS.length - 1));
-    
-    const snapX = -nearestIndex * itemWidth;
-    
-    animate(x, snapX, {
+    animate(rotation, currentRotation + diff, {
       type: "spring",
       stiffness: 300,
       damping: 30,
       velocity: velocity
     });
+  };
+
+  const handleDragEnd = (_: any, info: any) => {
+    const currentRotation = rotation.get();
+    const velocity = info.velocity.x;
+    // Map horizontal velocity to angular velocity
+    const projectedRotation = currentRotation + velocity * 0.05; 
+    
+    let nearestIndex = Math.round(-projectedRotation / angleStep);
+    scrollToIndex(nearestIndex, velocity * 0.05);
+  };
+
+  const navigate = (direction: 'next' | 'prev') => {
+    const currentRotation = rotation.get();
+    let currentIndex = Math.round(-currentRotation / angleStep);
+    const nextIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+    scrollToIndex(nextIndex);
   };
 
   useEffect(() => {
@@ -321,16 +386,16 @@ export default function App() {
   return (
     <div className={`min-h-screen overflow-x-hidden transition-colors duration-300 ${isDark ? 'bg-gray-950 text-white' : 'bg-gray-50 text-gray-900'}`}>
       {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${scrolled || isMobileMenuOpen ? (isDark ? 'bg-gray-900/90 backdrop-blur-lg shadow-lg' : 'bg-white/90 backdrop-blur-lg shadow-lg') : 'bg-transparent'} py-4 px-6`}>
+      <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${scrolled || isMobileMenuOpen ? (isDark ? 'bg-gray-950/60 backdrop-blur-xl border-b border-white/10 shadow-2xl' : 'bg-white/60 backdrop-blur-xl border-b border-black/5 shadow-xl') : 'bg-transparent'} py-3 md:py-4 px-4 md:px-6`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <button className="flex items-center space-x-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
+          <button className="flex items-center space-x-2 md:space-x-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
             <img 
               src="https://static.readdy.ai/image/a49a708ff15a112259bae29f78dc133b/eb54a76d95f58d32b413a617da2ab1c4.png" 
               alt="ACM Hacettepe ARGE" 
-              className="h-10 w-10"
+              className="h-8 w-8 md:h-10 md:w-10"
               referrerPolicy="no-referrer"
             />
-            <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>ACM ARGE</span>
+            <span className={`text-lg md:text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>ACM ARGE</span>
           </button>
           
           <div className="hidden md:flex items-center space-x-8">
@@ -420,17 +485,17 @@ export default function App() {
             </div>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight">
             <span className="text-white">Teknoloji ile Geleceği</span>
             <br />
             <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Birlikte İnşa Ediyoruz</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-3xl mx-auto">
-            Araştırma, geliştirme ve inovasyon odaklı projelerle <br /> yazılım dünyasında fark yaratıyoruz
+          <p className="text-base md:text-xl text-gray-300 mb-8 md:mb-10 max-w-3xl mx-auto">
+            Araştırma, geliştirme ve inovasyon odaklı projelerle <br className="hidden md:block" /> yazılım dünyasında fark yaratıyoruz
           </p>
 
-          <button className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg shadow-purple-500/50 hover:shadow-purple-500/70">
+          <button className="group relative px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg shadow-purple-500/50 hover:shadow-purple-500/70">
             <span className="flex items-center space-x-2">
               <span>Projelerimizi Keşfet</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -446,7 +511,8 @@ export default function App() {
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
             >
               <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
                 Hakkımızda
@@ -461,7 +527,8 @@ export default function App() {
             <motion.div 
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.9, delay: 0.3, ease: "easeOut" }}
               className="relative"
             >
               <div className={`relative rounded-2xl overflow-hidden ${isDark ? 'bg-purple-900/20 border border-purple-500/20' : 'bg-white border border-purple-200 shadow-xl'} backdrop-blur-md`}>
@@ -488,7 +555,8 @@ export default function App() {
             <motion.div 
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.9, delay: 0.3, ease: "easeOut" }}
               className="order-2 md:order-1 relative"
             >
               <div className={`relative rounded-2xl overflow-hidden ${isDark ? 'bg-purple-900/20 border border-purple-500/20' : 'bg-gray-50 border border-purple-200 shadow-xl'} backdrop-blur-md`}>
@@ -507,7 +575,8 @@ export default function App() {
             <motion.div 
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
               className="order-1 md:order-2"
             >
               <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
@@ -525,38 +594,44 @@ export default function App() {
       </section>
 
       {/* ARGE Birimi Section */}
-      <section id="arge-birimi" className={`py-24 overflow-hidden ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
+      <section id="arge-birimi" className={`py-16 md:py-24 overflow-hidden ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-20">
+          <div className="text-center mb-12 md:mb-20">
             <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
               Birimlerimiz
             </div>
-            <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>ARGE Birimi Nedir?</h2>
-            <p className={`text-base max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            <h2 className={`text-3xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>ARGE Birimi Nedir?</h2>
+            <p className={`text-sm md:text-base max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               Araştırma, geliştirme ve inovasyon odaklı çalışmalarımızı keşfetmek için kartlara tıklayın.
             </p>
           </div>
         </div>
 
-        <div className="relative mt-12 py-12 overflow-hidden">
-          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full blur-[120px] pointer-events-none ${isDark ? 'bg-purple-600/15' : 'bg-purple-300/20'}`}></div>
+        <div className="relative mt-4 md:mt-12 py-8 md:py-12 overflow-visible">
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[600px] aspect-[2/1] rounded-full blur-[80px] md:blur-[120px] pointer-events-none ${isDark ? 'bg-purple-600/15' : 'bg-purple-300/20'}`}></div>
           
           <div 
             ref={containerRef}
-            className="relative z-10 w-full overflow-visible"
+            className="relative z-10 w-full h-[350px] md:h-[400px] overflow-visible"
             style={{ perspective: '1200px' }}
           >
             <motion.div 
-              drag="x"
-              dragConstraints={dragConstraints}
-              onDragEnd={handleDragEnd}
-              style={{ 
-                x, 
-                transformStyle: 'preserve-3d',
-                paddingLeft: padding,
-                paddingRight: padding
+              onPan={(e, info) => {
+                // Map pan distance to rotation without moving the container itself
+                const currentRotation = rotation.get();
+                // Reduced sensitivity for smoother dragging
+                const sensitivity = isMobile ? 0.2 : 0.15;
+                rotation.set(currentRotation + info.delta.x * sensitivity);
               }}
-              className={`flex ${isMobile ? 'gap-6' : 'gap-12'} cursor-grab active:cursor-grabbing`}
+              onPanEnd={handleDragEnd}
+              style={{ 
+                width: '100%',
+                height: '100%',
+                transformStyle: 'preserve-3d',
+                position: 'relative',
+                touchAction: 'pan-y' // Allow vertical scrolling but capture horizontal pan
+              }}
+              className="cursor-grab active:cursor-grabbing"
             >
               {ARGE_UNITS.map((unit, index) => (
                 <ArgeCard 
@@ -565,11 +640,28 @@ export default function App() {
                   index={index}
                   isDark={isDark}
                   onSelect={() => setSelectedUnit(unit)}
-                  x={x}
+                  onClick={() => scrollToIndex(index)}
+                  x={rotation}
                   containerWidth={containerWidth}
                 />
               ))}
             </motion.div>
+
+            {/* Navigation Arrows */}
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 md:px-8 pointer-events-none z-30">
+              <button 
+                onClick={() => navigate('prev')}
+                className={`pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center backdrop-blur-md transition-all duration-300 ${isDark ? 'bg-white/5 border border-white/10 text-white hover:bg-white/10' : 'bg-purple-500/10 border border-purple-500/20 text-purple-600 hover:bg-purple-500/20'}`}
+              >
+                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+              <button 
+                onClick={() => navigate('next')}
+                className={`pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center backdrop-blur-md transition-all duration-300 ${isDark ? 'bg-white/5 border border-white/10 text-white hover:bg-white/10' : 'bg-purple-500/10 border border-purple-500/20 text-purple-600 hover:bg-purple-500/20'}`}
+              >
+                <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -652,8 +744,8 @@ export default function App() {
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                viewport={{ once: false, amount: 0.2 }}
+                transition={{ duration: 0.7, delay: 0.1 + index * 0.1, ease: "easeOut" }}
                 className={`group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-2 ${isDark ? 'bg-purple-900/20 border border-purple-500/20 hover:border-purple-500/40' : 'bg-white border border-purple-200 shadow-lg hover:shadow-xl'} backdrop-blur-md`}
               >
                 <div className="relative w-full h-56 overflow-hidden">
@@ -689,7 +781,8 @@ export default function App() {
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
             >
               <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
                 Uygulamalarımız
@@ -720,7 +813,8 @@ export default function App() {
             <motion.div 
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.9, delay: 0.3, ease: "easeOut" }}
               className="relative"
             >
               <div className={`relative rounded-2xl overflow-hidden ${isDark ? 'bg-purple-900/20 border border-purple-500/20' : 'bg-white border border-purple-200 shadow-xl'} backdrop-blur-md`}>
@@ -747,7 +841,8 @@ export default function App() {
             <motion.div 
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.9, delay: 0.3, ease: "easeOut" }}
               className="order-2 md:order-1 relative"
             >
               <div className={`relative rounded-2xl overflow-hidden ${isDark ? 'bg-purple-900/20 border border-purple-500/20' : 'bg-gray-50 border border-purple-200 shadow-xl'} backdrop-blur-md`}>
@@ -766,7 +861,8 @@ export default function App() {
             <motion.div 
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
               className="order-1 md:order-2"
             >
               <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
