@@ -147,6 +147,132 @@ const ARGE_UNITS = [
   }
 ];
 
+const HeroBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    let animationFrameId: number;
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    class Particle {
+      x: number = 0;
+      y: number = 0;
+      vx: number = 0;
+      vy: number = 0;
+      radius: number = 0;
+
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.radius = Math.random() * 2 + 1;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height;
+        if (this.y > canvas.height) this.y = 0;
+      }
+
+      draw() {
+        if (!ctx) return;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(147, 51, 234, 0.4)';
+        ctx.fill();
+      }
+    }
+
+    const particles = Array.from({ length: 90 }, () => new Particle());
+
+    const animate = () => {
+      if (!ctx) return;
+      ctx.fillStyle = 'rgba(10, 5, 20, 1)'; 
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((p, i) => {
+        p.update();
+        p.draw();
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 160) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(168, 85, 247, ${0.4 * (1 - dist / 160)})`;
+            ctx.lineWidth = 0.6;
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        }
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePos({
+      x: (e.clientX / window.innerWidth - 0.5) * 15,
+      y: (e.clientY / window.innerHeight - 0.5) * 15,
+    });
+  };
+
+  return (
+    <div 
+      className="absolute inset-0 w-full h-full overflow-hidden bg-[#0a0514]"
+      onMouseMove={handleMouseMove}
+    >
+      <div 
+        className="absolute inset-0 opacity-50 transition-transform duration-700 ease-out pointer-events-none animate-subtle-drift"
+        style={{
+          transform: `translate(${mousePos.x * -1.2}px, ${mousePos.y * -1.2}px) scale(1.15)`,
+          background: `
+            radial-gradient(circle at 15% 25%, #581c87 0%, transparent 45%),
+            radial-gradient(circle at 85% 75%, #3b0764 0%, transparent 45%),
+            radial-gradient(circle at 50% 50%, #1e1b4b 0%, transparent 100%)
+          `
+        }}
+      />
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-70"
+      />
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-transparent via-[#7e22ce08] to-transparent" />
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_150px_rgba(0,0,0,0.5)]" />
+    </div>
+  );
+};
+
 const PROJECTS = [
   {
     title: "Proje Alpha",
@@ -459,15 +585,7 @@ export default function App() {
 
       {/* Hero Section */}
       <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://picsum.photos/seed/tech/1920/1080" 
-            alt="Hero Background" 
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/60 via-gray-900/70 to-gray-900/80"></div>
-        </div>
+        <HeroBackground />
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

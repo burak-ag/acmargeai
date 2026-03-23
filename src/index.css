@@ -42,6 +42,14 @@
     transform: scale(1) translateY(0);
   }
 }
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(1%, 1%) scale(1.02); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+.animate-subtle-drift {
+  animation: drift 20s ease-in-out infinite;
+}
 html,
 body {
   background-color: #030712; /* gray-950 */
