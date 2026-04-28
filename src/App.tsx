@@ -515,12 +515,6 @@ export default function App() {
       <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${scrolled || isMobileMenuOpen ? (isDark ? 'bg-gray-950/60 backdrop-blur-xl border-b border-white/10 shadow-2xl' : 'bg-white/60 backdrop-blur-xl border-b border-black/5 shadow-xl') : 'bg-transparent'} py-3 md:py-4 px-4 md:px-6`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <button className="flex items-center space-x-2 md:space-x-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
-            <img 
-              src="https://static.readdy.ai/image/a49a708ff15a112259bae29f78dc133b/eb54a76d95f58d32b413a617da2ab1c4.png" 
-              alt="ACM Hacettepe ARGE" 
-              className="h-8 w-8 md:h-10 md:w-10"
-              referrerPolicy="no-referrer"
-            />
             <span className={`text-lg md:text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>ACM ARGE</span>
           </button>
           
@@ -667,7 +661,7 @@ export default function App() {
       </section>
 
       {/* ACM Hacettepe Section */}
-      <section id="acm-hacettepe" className={`py-24 px-6 overflow-hidden ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+      <section id="acm-hacettepe" className={`py-24 px-6 overflow-hidden ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <motion.div 
@@ -844,7 +838,7 @@ export default function App() {
       </section>
 
       {/* Portfolio Section */}
-      <section id="gecmis-calismalar" className={`py-24 px-6 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+      <section id="gecmis-calismalar" className={`py-24 px-6 ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
@@ -895,7 +889,7 @@ export default function App() {
       {/* Geyik App Section */}
       <section id="geyik-app" className={`py-24 px-6 overflow-hidden ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
+          <div className="grid md:grid-cols-[1fr_300px] gap-y-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -933,18 +927,15 @@ export default function App() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: false, amount: 0.3 }}
               transition={{ duration: 0.9, delay: 0.3, ease: "easeOut" }}
-              className="relative"
+              className="relative w-[300px] mx-auto md:ml-auto"
             >
-              <div className={`relative rounded-2xl overflow-hidden ${isDark ? 'bg-purple-900/20 border border-purple-500/20' : 'bg-white border border-purple-200 shadow-xl'} backdrop-blur-md`}>
-                <div className="aspect-square">
-                  <img 
-                    src="https://picsum.photos/seed/app/600/600" 
-                    alt="Geyik App" 
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 to-transparent"></div>
+              <div className={`relative rounded-4xl overflow-hidden w-full`}>
+                <img 
+                  src="../images/geyik.png" 
+                  alt="Geyik App" 
+                  className="w-full h-auto block object-contain"
+                  referrerPolicy="no-referrer"
+                />
               </div>
               <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full blur-3xl opacity-50"></div>
             </motion.div>
@@ -953,26 +944,23 @@ export default function App() {
       </section>
 
       {/* ACS DAYS Section */}
-      <section id="acs-days" className={`py-24 px-6 overflow-hidden ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+      <section id="acs-days" className={`py-24 px-6 overflow-hidden ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
+          <div className="grid md:grid-cols-[300px_1fr] gap-4 gap-y-12 items-center">
             <motion.div 
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: false, amount: 0.3 }}
               transition={{ duration: 0.9, delay: 0.3, ease: "easeOut" }}
-              className="order-2 md:order-1 relative"
+              className="order-2 md:order-1 relative w-[300px] mx-auto md:mr-auto"
             >
-              <div className={`relative rounded-2xl overflow-hidden ${isDark ? 'bg-purple-900/20 border border-purple-500/20' : 'bg-gray-50 border border-purple-200 shadow-xl'} backdrop-blur-md`}>
-                <div className="aspect-square">
-                  <img 
-                    src="https://picsum.photos/seed/event/600/600" 
-                    alt="ACS DAYS App" 
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 to-transparent"></div>
+              <div className={`relative rounded-4xl overflow-hidden w-full`}>
+                <img 
+                  src="../images/acs.png" 
+                  alt="ACS DAYS App" 
+                  className="w-full h-auto block object-contain"
+                  referrerPolicy="no-referrer"
+                />
               </div>
               <div className="absolute -top-6 -left-6 w-32 h-32 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full blur-3xl opacity-50"></div>
             </motion.div>
@@ -984,7 +972,7 @@ export default function App() {
               className="order-1 md:order-2"
             >
               <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
-                Etkinliklerimiz
+                Uygulamalarımız
               </div>
               <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>ACS DAYS Uygulamamız</h2>
               <div className={`space-y-4 text-base leading-relaxed mb-8 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
