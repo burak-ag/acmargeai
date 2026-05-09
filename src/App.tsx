@@ -358,6 +358,18 @@ const ArgeCard: React.FC<ArgeCardProps> = ({ unit, index, isDark, onSelect, onCl
   const opacity = useTransform(z, [-radius, radius * 0.3, radius], [0, 0.15, 1]);
   const scale = useTransform(z, [-radius, radius], [isMobile ? 0.75 : 0.7, 1]);
 
+  // Perspective projection math to avoid translateZ blurriness.
+  // We simulate the 3D depth by manual scaling and X-projection while keeping z=0.
+  const perspective = 1200;
+  const pScale = useTransform(z, (v: any) => perspective / (perspective - v));
+  const finalScale = useTransform([scale, pScale], ([s, p]: any) => s * p);
+  const finalX = useTransform([x, pScale], ([x_val, p]: any) => (x_val * p) - (cardWidth / 2));
+
+  // Scale values for internal parallax elements - using scale instead of translateZ
+  // to avoid text blurriness, especially on the center card.
+  const innerScaleTop = useTransform(z, [-radius, radius], [1, 1.05]);
+  const innerScaleBottom = useTransform(z, [-radius, radius], [1, 1.08]);
+
   return (
     <motion.div
       onClick={onClick}
@@ -365,11 +377,11 @@ const ArgeCard: React.FC<ArgeCardProps> = ({ unit, index, isDark, onSelect, onCl
         position: 'absolute',
         left: '50%',
         top: '50%',
-        x: useTransform(x, (val) => val - cardWidth / 2),
+        x: finalX,
         y: '-50%',
-        z,
+        z: 0,
         rotateY,
-        scale,
+        scale: finalScale,
         opacity,
         transformStyle: "preserve-3d",
         willChange: "transform",
@@ -390,7 +402,10 @@ const ArgeCard: React.FC<ArgeCardProps> = ({ unit, index, isDark, onSelect, onCl
       >
         <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${unit.gradient}`}></div>
         
-        <div className="flex justify-between items-start" style={{ transform: "translateZ(20px)" }}>
+        <motion.div 
+          className="flex justify-between items-start" 
+          style={{ scale: innerScaleTop }}
+        >
           <div className="space-y-1">
             <h3 className={`${isSmallMobile ? 'text-lg' : 'text-xl'} font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{unit.title}</h3>
             <p className={`text-[10px] md:text-xs font-medium ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>{unit.shortDesc}</p>
@@ -400,9 +415,12 @@ const ArgeCard: React.FC<ArgeCardProps> = ({ unit, index, isDark, onSelect, onCl
               {unit.icon}
             </span>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="flex justify-between items-end" style={{ transform: "translateZ(30px)" }}>
+        <motion.div 
+          className="flex justify-between items-end" 
+          style={{ scale: innerScaleBottom }}
+        >
           <div className="flex gap-3">
             {unit.stats.map((stat, i) => (
               <div key={i} className="flex flex-col">
@@ -421,7 +439,7 @@ const ArgeCard: React.FC<ArgeCardProps> = ({ unit, index, isDark, onSelect, onCl
             <span>Detaylar</span>
             <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
           </div>
-        </div>
+        </motion.div>
       </motion.div>
     </motion.div>
   );
@@ -515,7 +533,12 @@ export default function App() {
       <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${scrolled || isMobileMenuOpen ? (isDark ? 'bg-gray-950/60 backdrop-blur-xl border-b border-white/10 shadow-2xl' : 'bg-white/60 backdrop-blur-xl border-b border-black/5 shadow-xl') : 'bg-transparent'} py-3 md:py-4 px-4 md:px-6`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <button className="flex items-center space-x-2 md:space-x-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
-            <span className={`text-lg md:text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>ACM ARGE</span>
+            <img 
+              src="/images/arge-logo.png" 
+              alt="ACM ARGE Logo" 
+              className="h-6 md:h-8 w-auto object-contain"
+              referrerPolicy="no-referrer"
+            />
           </button>
           
           <div className="hidden md:flex items-center space-x-8">
@@ -587,14 +610,13 @@ export default function App() {
           transition={{ duration: 0.8 }}
           className="relative z-10 max-w-6xl mx-auto px-6 text-center"
         >
-          <div className={`inline-block px-6 py-2 rounded-full mb-8 ${isDark ? 'bg-purple-500/20 border border-purple-400/30' : 'bg-purple-100/80 border border-purple-300'} backdrop-blur-md`}>
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-1">
-                {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />)}
-              </div>
-              <span className={`text-sm font-medium ${isDark ? 'text-purple-200' : 'text-purple-900'}`}>Yenilikçi Projeler</span>
-              <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>• ACM Hacettepe ARGE</span>
-            </div>
+          <div className="flex justify-center mb-8">
+            <img 
+              src="/images/acm-logo.svg" 
+              alt="ACM Logo" 
+              className="h-[77px] md:h-[102px] w-auto object-contain"
+              referrerPolicy="no-referrer"
+            />
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight">
@@ -609,7 +631,7 @@ export default function App() {
 
           <button className="group relative px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg shadow-purple-500/50 hover:shadow-purple-500/70">
             <span className="flex items-center space-x-2">
-              <span>Projelerimizi Keşfet</span>
+              <span>Bize Katıl</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
           </button>
@@ -708,7 +730,13 @@ export default function App() {
       {/* ARGE Birimi Section */}
       <section id="arge-birimi" className={`py-16 md:py-24 overflow-hidden ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-12 md:mb-20">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-center mb-12 md:mb-20"
+          >
             <div className={`inline-block px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-purple-100 border border-purple-200 text-purple-700'} text-sm font-semibold`}>
               Birimlerimiz
             </div>
@@ -716,10 +744,16 @@ export default function App() {
             <p className={`text-sm md:text-base max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               Araştırma, geliştirme ve inovasyon odaklı çalışmalarımızı keşfetmek için kartlara tıklayın.
             </p>
-          </div>
+          </motion.div>
         </div>
 
-        <div className="relative mt-4 md:mt-12 py-8 md:py-12 overflow-visible">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.2 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="relative mt-4 md:mt-12 py-8 md:py-12 overflow-visible"
+        >
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[600px] aspect-[2/1] rounded-full blur-[80px] md:blur-[120px] pointer-events-none ${isDark ? 'bg-purple-600/15' : 'bg-purple-300/20'}`}></div>
           
           <div 
@@ -760,7 +794,7 @@ export default function App() {
             </motion.div>
 
             {/* Navigation Arrows */}
-            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 md:px-8 pointer-events-none z-30">
+            <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-full max-w-[1200px] flex justify-between px-2 md:px-8 pointer-events-none z-30">
               <button 
                 onClick={() => navigate('prev')}
                 className={`pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center backdrop-blur-md transition-all duration-300 ${isDark ? 'bg-white/5 border border-white/10 text-white hover:bg-white/10' : 'bg-purple-500/10 border border-purple-500/20 text-purple-600 hover:bg-purple-500/20'}`}
@@ -775,7 +809,7 @@ export default function App() {
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Modal */}
         <AnimatePresence>
@@ -1002,14 +1036,13 @@ export default function App() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div>
-              <div className="flex items-center space-x-3 mb-4">
+              <div className="flex items-center mb-4">
                 <img 
-                  src="https://static.readdy.ai/image/a49a708ff15a112259bae29f78dc133b/eb54a76d95f58d32b413a617da2ab1c4.png" 
-                  alt="ACM Hacettepe ARGE" 
-                  className="h-10 w-10"
+                  src="/images/arge-logo.png" 
+                  alt="ACM ARGE Logo" 
+                  className="h-8 md:h-10 w-auto object-contain"
                   referrerPolicy="no-referrer"
                 />
-                <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>ACM ARGE</span>
               </div>
               <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                 Hacettepe Üniversitesi ACM öğrenci topluluğunun ARGE birimi.
@@ -1061,8 +1094,8 @@ export default function App() {
           </div>
           
           <div className={`pt-8 border-t ${isDark ? 'border-purple-900/30' : 'border-purple-200'}`}>
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>© 2024 ACM Hacettepe ARGE. Tüm hakları saklıdır.</p>
+            <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0">
+              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>© 2026 ACM Hacettepe ARGE. Tüm hakları saklıdır.</p>
             </div>
           </div>
         </div>
